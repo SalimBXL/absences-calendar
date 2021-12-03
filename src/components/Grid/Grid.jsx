@@ -7,13 +7,13 @@ import "./data.json";
 
 const DAYLENGTH = (1000*60*60*24);
 
-const Grid = ({annee, absences, jobs}) => {
+const Grid = ({annee, events}) => {
 
 
 
-    const adjustFirstDayOfTheYear = () => 
+    const adjustFirstDayOfTheYear = (year) => 
     {
-        let _currentDate = Date.parse(annee + "-01-01")
+        let _currentDate = Date.parse(year + "-01-01")
         const day = new Date(_currentDate).getDay();
         let daysBefore = (day > 1) 
             ? (DAYLENGTH * (day-1)) 
@@ -21,10 +21,10 @@ const Grid = ({annee, absences, jobs}) => {
                 ? (DAYLENGTH * (day+1)) 
                 : 0;
         _currentDate -= daysBefore;
-        return [_currentDate, daysBefore];
+        return _currentDate;
     }
 
-    let [currentDate] = adjustFirstDayOfTheYear(annee);
+    let currentDate = adjustFirstDayOfTheYear(annee);
 
     const weeksInMonth = (m) => 
     {
@@ -40,31 +40,30 @@ const Grid = ({annee, absences, jobs}) => {
     {
         const date = new Date(currentDay); 
         const day = (date.getDay());
-        //const jsonDate = date.toJSON();
         const nDay = date.getDate();
         const nMonth = (date.getMonth() + 1);
         const nYear = date.getFullYear();
         
         const key = nYear + "-" + (nMonth < 10 ? "0" + nMonth : nMonth) + "-" + (nDay < 10 ? "0" + nDay : nDay)
 
-        const style = (day < 1 || day > 5) 
-            ? {backgroundColor: "grey"}
-            : jobs.get(key)
-                ? {backgroundColor: "cornflowerblue"}
-                : absences.get(key) && absences.get(key).code === "Co" && absences.get(key).confirmed === true
-                    ? {backgroundColor: "green"}
-                    : absences.get(key) && absences.get(key).code === "Co" && absences.get(key).confirmed === false
-                        ? {backgroundColor: "lightgreen"}
-                        : absences.get(key) && absences.get(key).code === "Mi"
-                            ? {backgroundColor: "orange"}
-                            : null;
+        const style = !(day < 1 || day > 5) && events.get(key) 
+            ? {backgroundColor: events.get(key).color}
+            : null;
+
+        const cls = (day < 1 || day > 5)
+            ? "tdDay weekend"
+            : "tdDay";
+
+        const tooltip = events.get(key)
+            ? key + " : " + events.get(key).tooltip
+            : key;
 
         return indexMois === nMonth
             ? (<td  key={key} 
-                    className="tdDay"
+                    className={cls}
                     style={style} 
                     data-bs-toggle="tooltip" 
-                    title={key} 
+                    title={tooltip} 
                     id={key}>
                 </td>)
             : (<td></td>);
@@ -144,13 +143,9 @@ const Grid = ({annee, absences, jobs}) => {
        return (<div className="d-flex justify-content-center ">{mois}</div>);
    }
 
-
-
-   
     return (
         <div id="grille" className="">
             Annee : <h3>{annee}</h3>
-            
             <Annee />
         </div>
         
@@ -159,14 +154,12 @@ const Grid = ({annee, absences, jobs}) => {
 
 Grid.prototype = {
     annee: PropTypes.number.isRequired,
-    absences: PropTypes.array,
-    jobs: PropTypes.array
+    events: PropTypes.array
 }
 
 Grid.defaultProps = {
     annee: (new Date()).getFullYear(),
-    absences: (new Map()),
-    jobs: (new Map())
+    events: (new Map())
 }
 
 export default Grid;
