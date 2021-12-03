@@ -7,10 +7,29 @@ function App() {
 
 
   
+  const test_absences = [
+    { "date": "2021-06-16", "code": "Co", "confirmed": true},
+    { "date": "2021-06-17", "code": "Co", "confirmed": false},
+    { "date": "2021-07-05", "code": "Mi", "confirmed": false}
+  ];
+
+  const test_jobs = [
+    { "date": "2021-06-14", "codes": ["5", "L"]},
+    { "date": "2021-07-15", "codes": ["M", "QC"]},
+    { "date": "2021-07-01", "codes": ["FDG2"]}
+  ]
+
+  const absences = new Map();
+  test_absences.map((o) => absences.set(o.date, o) );
+
+  const jobs = new Map();
+  test_jobs.map((o) => jobs.set(o.date, o) );
+
+
   
   return (
     <div className="App">
-      <Grid />
+      <Grid absences={absences} jobs={jobs} />
     </div>
   );
 }

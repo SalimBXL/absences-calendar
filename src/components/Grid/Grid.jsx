@@ -5,89 +5,168 @@ import "./Grid.css";
 
 import "./data.json";
 
-const DAYNAME = { 0: "Di", 1: "Lu", 2: "Ma", 3: "Me", 4: "Je", 5: "Ve", 6: "Sa"}
 const DAYLENGTH = (1000*60*60*24);
 
-const Grid = ({annee}) => {
+const Grid = ({annee, absences, jobs}) => {
 
-    const adjustFirstDayOfTheYear = (_currentDate) => {
+
+
+    const adjustFirstDayOfTheYear = () => 
+    {
+        let _currentDate = Date.parse(annee + "-01-01")
         const day = new Date(_currentDate).getDay();
-        if (day > 1) _currentDate -= (DAYLENGTH * (day-1));
-        if (day < 1) _currentDate -= (DAYLENGTH * (day+1));
-        return _currentDate;
+        let daysBefore = (day > 1) 
+            ? (DAYLENGTH * (day-1)) 
+            : (day < 1) 
+                ? (DAYLENGTH * (day+1)) 
+                : 0;
+        _currentDate -= daysBefore;
+        return [_currentDate, daysBefore];
     }
 
-    const Jour = ({_currentDate}) => {
-        const date = new Date(_currentDate); 
+    let [currentDate] = adjustFirstDayOfTheYear(annee);
+
+    const weeksInMonth = (m) => 
+    {
+        const date = new Date(annee, m, 0);
+        return Math.floor((date.getDate() - 1) / 7) + 1;
+    }
+
+
+    /*
+    *   JOUR
+    */
+    const Jour = ({currentDay, indexMois}) => 
+    {
+        const date = new Date(currentDay); 
         const day = (date.getDay());
-        const jsonDate = date.toJSON();
+        //const jsonDate = date.toJSON();
         const nDay = date.getDate();
         const nMonth = (date.getMonth() + 1);
+        const nYear = date.getFullYear();
+        
+        const key = nYear + "-" + (nMonth < 10 ? "0" + nMonth : nMonth) + "-" + (nDay < 10 ? "0" + nDay : nDay)
+
         const style = (day < 1 || day > 5) 
             ? {backgroundColor: "grey"}
-            : null;
-        return (
-            <td key={_currentDate} className="tdDay"
-                style={style} data-bs-toggle="tooltip" 
-                title={jsonDate}>
+            : jobs.get(key)
+                ? {backgroundColor: "cornflowerblue"}
+                : absences.get(key) && absences.get(key).code === "Co" && absences.get(key).confirmed === true
+                    ? {backgroundColor: "green"}
+                    : absences.get(key) && absences.get(key).code === "Co" && absences.get(key).confirmed === false
+                        ? {backgroundColor: "lightgreen"}
+                        : absences.get(key) && absences.get(key).code === "Mi"
+                            ? {backgroundColor: "orange"}
+                            : null;
 
-                {DAYNAME[day]} <br/>
-                ({day}) <br />
-                {nDay} <br />
-                {nMonth}
-
-            </td>);
+        return indexMois === nMonth
+            ? (<td  key={key} 
+                    className="tdDay"
+                    style={style} 
+                    data-bs-toggle="tooltip" 
+                    title={key} 
+                    id={key}>
+                </td>)
+            : (<td></td>);
     }
 
-    const Semaine = ({curr}) => {
-        let _currentDate = curr;
+
+    /*
+    *   SEMAINE
+    */
+    const Semaine = ({indexDay, indexMois}) =>
+    {
         const jours = [];
-        for (let i = 0; i < 7; i++) {
-            jours.push(<Jour key={i} _currentDate={_currentDate} />);
-            _currentDate += (DAYLENGTH);
+        const indexLastDay = (indexDay + 7);
+
+        for (let i = indexDay; i < indexLastDay; i++) {
+            const _date = currentDate + (i * DAYLENGTH);
+            jours.push(<Jour key={_date} currentDay={_date} indexMois={indexMois}/>);
         }
-        return (<tr>{jours}</tr>);
+
+        return (<tr key={"week-" + indexDay}>{jours}</tr>);
     }
 
-    const Mois = ({curr}) => {
-        let _currentDate = curr;
-        
+
+    /*
+    *   MOIS
+    */
+    const Mois = ({indexMois, indexWeek}) => 
+    {
         const semaines = [];
-        for (let i = 0; i < 4; i++) {
-            const date = new Date(_currentDate);
-            const jsonDate = date.toJSON();
-            console.log(jsonDate);
-            semaines.push(<Semaine key={i} _currentDate={_currentDate} />);
-            _currentDate += (DAYLENGTH * 7);
+        const indexLastWeek = (indexWeek + weeksInMonth(indexMois));
+        
+        for (let i = indexWeek; i < indexLastWeek; i++) {
+            const indexDay = i * 7;
+            semaines.push(<Semaine key={i} indexDay={(indexDay)} indexMois={indexMois}/>);
+
         }
-        return (<tr><td><table><tbody>{semaines}</tbody></table></td></tr>);
+
+        return (<table key={"month-" + indexMois} id={"month-" + indexMois}><tbody>{semaines}</tbody></table>);
     }
 
+    /*
+    *   ANNEE
+    */
+   const Annee = () => 
+   {
+        const mois = [];
+        let nWeeks = 0;
+
+        for (let i = 1; i <= 12; i++) {
+            const wim = weeksInMonth(i);
+            const lastDayOfMonth = (currentDate + ((nWeeks+wim) * 7 * DAYLENGTH) - DAYLENGTH );
+            const dateLastDayOfMonth = (new Date(lastDayOfMonth))
+            const monthOfLastDay = dateLastDayOfMonth.getMonth() + 1;
+            const lastDayOfMonthIsFromTheNextOne = (monthOfLastDay > i) ? true : false;
+            const key = "month-" + i;
+            const _nWeeks = (new Date(annee + "-" + i + "-01").getDay() < 1) || (new Date(annee + "-" + i + "-01").getDay() > 5)
+                ? nWeeks + 1 
+                : nWeeks;
+            mois.push(
+                <div key={key} className="clearfix">
+                    <span className="float-start">
+                        &nbsp;&nbsp;&nbsp;
+                        <strong>{i}</strong>
+                    </span> <br />
+                    <Mois   key={i} 
+                            indexMois={i} 
+                            indexWeek={_nWeeks}
+                            className="float-start"
+                    />
+                    
+                </div>);
+            
+            nWeeks += wim;
+            if (lastDayOfMonthIsFromTheNextOne === true) nWeeks -= 1;
+        }
+
+       return (<div className="d-flex justify-content-center ">{mois}</div>);
+   }
 
 
-    let currentDate = adjustFirstDayOfTheYear(Date.parse(annee + "-01-01"));
 
+   
     return (
         <div id="grille" className="">
             Annee : <h3>{annee}</h3>
-            <table>
-                <tbody>
-                    
-                        <Mois curr={currentDate} />
-                    
-                </tbody>
-            </table>
+            
+            <Annee />
         </div>
         
     );
 }
 
 Grid.prototype = {
-    annee: PropTypes.number.isRequired
+    annee: PropTypes.number.isRequired,
+    absences: PropTypes.array,
+    jobs: PropTypes.array
 }
 
 Grid.defaultProps = {
-    annee: (new Date()).getFullYear()
+    annee: (new Date()).getFullYear(),
+    absences: (new Map()),
+    jobs: (new Map())
 }
 
 export default Grid;

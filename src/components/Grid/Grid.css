@@ -13,7 +13,19 @@ table {
     border-spacing: 1px;
     min-width: 11px;
     height: 11px;
-    background-color: cornsilk;
+    background-color: rgb(248, 248, 246);
+}
+
+.absenceOk {
+    background-color: greenyellow;
+}
+
+.absenceNon {
+    background-color: lightgreen;
+}
+
+.job {
+    background-color: cornflowerblue;
 }
 
 @media screen and (max-width: 990px) {
