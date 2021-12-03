@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from 'prop-types';
 
 import "./Grid.css";
@@ -8,6 +8,14 @@ import "./data.json";
 const DAYLENGTH = (1000*60*60*24);
 
 const Grid = ({annee, events}) => {
+
+    const [gridToShow, setGridToShow] = useState([]);
+
+
+    const handleClickOnMonth = (idMois, idSemaine) => {
+        setGridToShow([idMois, idSemaine]);
+    }
+
 
 
 
@@ -101,7 +109,8 @@ const Grid = ({annee, events}) => {
 
         }
 
-        return (<table key={"month-" + indexMois} id={"month-" + indexMois}><tbody>{semaines}</tbody></table>);
+        return (<table key={"month-" + indexMois} 
+            id={"month-" + indexMois + "-" + indexWeek}><tbody>{semaines}</tbody></table>);
     }
 
     /*
@@ -122,18 +131,20 @@ const Grid = ({annee, events}) => {
             const _nWeeks = (new Date(annee + "-" + i + "-01").getDay() < 1) || (new Date(annee + "-" + i + "-01").getDay() > 5)
                 ? nWeeks + 1 
                 : nWeeks;
+            const style = (new Date().getMonth() === i) ? {backgroundColor: "lemonchiffon"} : null;
             mois.push(
-                <div key={key} className="clearfix">
+                <div key={key} id={"obj-"+key} className="clearfix" style={style} 
+                    onClick={()=>handleClickOnMonth(i, _nWeeks)}>
                     <span className="float-start">
                         &nbsp;&nbsp;&nbsp;
                         <strong>{i}</strong>
                     </span> <br />
-                    <Mois   key={i} 
+                    <Mois   key={"month-" + i} 
                             indexMois={i} 
                             indexWeek={_nWeeks}
-                            className="float-start"
+                            className={"float-start"}
+                            //id={"obj-month-" + i}
                     />
-                    
                 </div>);
             
             nWeeks += wim;
@@ -147,6 +158,11 @@ const Grid = ({annee, events}) => {
         <div id="grille" className="">
             Annee : <h3>{annee}</h3>
             <Annee />
+            {gridToShow[0] && <Mois indexMois={gridToShow[0]} indexWeek={gridToShow[1]} 
+                
+            />}
+            
+
         </div>
         
     );

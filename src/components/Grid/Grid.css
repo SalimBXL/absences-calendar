@@ -4,10 +4,6 @@ table, th, td {
     border-collapse: separate;
 }
 
-table {
-    
-}
-
 .tdDay {
     border: 1px solid black;
     border-spacing: 1px;
@@ -20,17 +16,11 @@ table {
     background-color: lightgray;
 }
 
-.absenceOk {
-    background-color: greenyellow;
+.currentMonth {
+    background-color:lemonchiffon;
 }
 
-.absenceNon {
-    background-color: lightgreen;
-}
 
-.job {
-    background-color: cornflowerblue;
-}
 
 @media screen and (max-width: 990px) {
 
