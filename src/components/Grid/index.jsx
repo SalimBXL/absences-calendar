@@ -1,23 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from 'prop-types';
+import "./index.css";
 
-import "./Grid.css";
-
-import "./data.json";
 
 const DAYLENGTH = (1000*60*60*24);
 
-const Grid = ({annee, events}) => {
-
-    const [gridToShow, setGridToShow] = useState([]);
 
 
-    const handleClickOnMonth = (idMois, idSemaine) => {
-        setGridToShow([idMois, idSemaine]);
-    }
-
-
-
+const Grid = ({annee, events, handleMonthToShow}) => {
 
     const adjustFirstDayOfTheYear = (year) => 
     {
@@ -134,7 +124,8 @@ const Grid = ({annee, events}) => {
             const style = (new Date().getMonth() === i) ? {backgroundColor: "lemonchiffon"} : null;
             mois.push(
                 <div key={key} id={"obj-"+key} className="clearfix" style={style} 
-                    onClick={()=>handleClickOnMonth(i, _nWeeks)}>
+                //const ob = { indexMonth: idMois, numberOfWeeksInMonth: weeksInMonth(idMois) };
+                    onClick={() => handleMonthToShow(i, annee)}>
                     <span className="float-start">
                         &nbsp;&nbsp;&nbsp;
                         <strong>{i}</strong>
@@ -158,11 +149,6 @@ const Grid = ({annee, events}) => {
         <div id="grille" className="">
             Annee : <h3>{annee}</h3>
             <Annee />
-            {gridToShow[0] && <Mois indexMois={gridToShow[0]} indexWeek={gridToShow[1]} 
-                
-            />}
-            
-
         </div>
         
     );
@@ -170,7 +156,8 @@ const Grid = ({annee, events}) => {
 
 Grid.prototype = {
     annee: PropTypes.number.isRequired,
-    events: PropTypes.array
+    events: PropTypes.array,
+    handleMonthToShow: PropTypes.func
 }
 
 Grid.defaultProps = {

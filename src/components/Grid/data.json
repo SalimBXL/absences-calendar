@@ -1,8 +1,0 @@
-{
-    "absences": [ 
-            {"id": 0, "date": "2021-01-15", "code": "Co", "confirmed": true},
-            {"id": 1, "date": "2021-02-55", "code": "Mi", "confirmed": true},
-            {"id": 2, "date": "2021-03-21", "code": "Ma", "confirmed": true},
-            {"id": 2, "date": "2021-01-16", "code": "Co", "confirmed": false}
-    ]
-}
