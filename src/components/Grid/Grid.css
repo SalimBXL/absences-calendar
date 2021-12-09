@@ -20,7 +20,13 @@ table, th, td {
     background-color:lemonchiffon;
 }
 
+.mois {
+    border: 1px solid;
+}
 
+.oneMonth {
+    border: 1px solid "red";
+}
 
 @media screen and (max-width: 990px) {
 

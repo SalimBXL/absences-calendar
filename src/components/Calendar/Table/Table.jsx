@@ -1,6 +1,6 @@
 import React from "react"
 import PropTypes from 'prop-types';
-import Week from "../Week/Week"
+import Week from "../../Grid/Week/Week"
 
 
 const Table = ({monthToShow, eventsInMonth}) => {
